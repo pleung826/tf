@@ -10,6 +10,11 @@ locals {
         "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy",
         "arn:aws:iam::aws:policy/AmazonEKSServicePolicy"
       ]
+      custom_policy_files = [
+        "../../policies/s3_readonly.json",
+        "../../policies/dynamodb_access.json",
+        "../../policies/cloudwatch_logs.json"
+      ]
       custom_trust = "../../policies/aws/trust/eks-admin-trust.json"
     }
 
