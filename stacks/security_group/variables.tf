@@ -1,3 +1,15 @@
+variable "region" {
+  type = "string"
+}
+
+variable "project" {
+  type = "string"
+}
+
+variable "vpc_id" {
+  type = "string"
+}
+
 variable "group_name" {
   type    = string
   default = "dev-app-sg"
