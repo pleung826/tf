@@ -57,7 +57,7 @@ locals {
 }
 
 module "app_stack" {
-  source = "../../app_stack"
+  source = "../../../app_stack"
 
   apps = local.apps
 }

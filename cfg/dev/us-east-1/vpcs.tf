@@ -65,7 +65,7 @@ locals {
 module "vpc" {
   for_each = local.vpcs
 
-  source = "../../modules/vpc"
+  source = "../../../modules/vpc"
 
   cloud              = each.value.cloud
   name               = each.value.name
