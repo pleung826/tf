@@ -62,18 +62,3 @@ locals {
   }
 }
 
-module "vpc" {
-  for_each = local.vpcs
-
-  source = "../../../modules/vpc"
-
-  cloud              = each.value.cloud
-  name               = each.value.name
-  region             = each.value.region
-  cidr_block         = each.value.cidr_block
-  resource_group     = try(each.value.resource_group, null)
-  subnets            = each.value.subnets
-  peerings           = try(each.value.peerings, {})
-  security_group_ref = try(each.value.security_group_ref, {})
-  tags               = each.value.tags
-}
