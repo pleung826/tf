@@ -10,6 +10,26 @@ variable "region" {
   type = string
 }
 
+variable "environment" {
+  type = string
+}
+
+variable "project" {
+  type = string
+}
+
+variable "enable_nat" {
+  type = bool
+}
+
+variable "enable_dns" {
+  type = bool
+}
+
+variable "flow_logs" {
+  type = string
+}
+
 variable "cidr_block" {
   type = string
 }

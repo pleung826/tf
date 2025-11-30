@@ -13,10 +13,10 @@ module "vpc" {
   peerings           = try(each.value.peerings, {})
   security_group_ref = try(each.value.security_group_ref, {})
   tags               = each.value.tags
-  project         = var.project
-  enable_nat      = var.enable_nat
-  enable_dns      = var.enable_dns
-  flow_logs       = var.flow_logs
+  project            = var.project
+  enable_nat         = var.enable_nat
+  enable_dns         = var.enable_dns
+  flow_logs          = var.flow_logs
 
   providers = {
     aws   = aws.dev
