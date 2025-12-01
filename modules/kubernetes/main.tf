@@ -54,9 +54,59 @@ resource "azurerm_kubernetes_cluster" "aks" {
 }
 
 # Access Roles (abstracted)
-module "access_roles" {
-  source = "../kubernetes/access_roles"
-  cloud  = var.cloud
-  cluster_name = var.cluster_name
-  access_roles = var.access_roles
+# AWS EKS access roles
+resource "aws_iam_role" "eks_access_roles" {
+  for_each = local.is_aws ? var.access_roles : {}
+
+  name = "${each.key}-eks-access-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          AWS = each.value.access_roles.platform-admin.principal
+        }
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy" "eks_access_policies" {
+  for_each = local.is_aws ? var.access_roles : {}
+
+  name = "${each.key}-eks-access-policy"
+  role = aws_iam_role.eks_access_roles[each.key].id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      for role_name, role_cfg in each.value.access_roles : {
+        Sid    = "${role_name}-Access"
+        Effect = "Allow"
+        Action = [
+          "eks:DescribeCluster",
+          "eks:ListClusters",
+          "eks:UpdateClusterConfig",
+          "eks:UpdateClusterVersion",
+          "eks:CreateNodegroup",
+          "eks:UpdateNodegroupConfig",
+          "eks:UpdateNodegroupVersion",
+          "eks:DeleteNodegroup"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+# Azure AKS access roles
+resource "azurerm_role_assignment" "aks_access_roles" {
+  for_each = local.is_azure ? var.access_roles : {}
+
+  scope                = azurerm_kubernetes_cluster.myaks.id
+  role_definition_name = "Azure Kubernetes Service Cluster User"
+  principal_id         = each.value.access_roles.data-admin.principal
 }

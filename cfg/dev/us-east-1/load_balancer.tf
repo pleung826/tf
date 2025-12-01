@@ -8,7 +8,7 @@ locals {
       internal        = false
       vpc_id          = var.vpc_id
       subnet_ids      = var.public_subnets
-      security_groups = [module.security_group_web.id]
+      security_groups = [var.security_group_web.id]
 
       listeners = [
         {
