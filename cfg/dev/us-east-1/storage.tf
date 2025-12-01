@@ -2,11 +2,11 @@ locals {
   storage = {
     logs = {
       cloud       = "aws"
-      bucket_name = "dev-platform-logs"
+      bucket_name = "dev-platform-logs-us-east-1"
       versioning  = true
       replication = {
         enabled     = true
-        destination = "prod-platform-logs"  # ← just the bucket name
+        destination = "dev-platform-logs-us-west-2"  # ← just the bucket name
       }
       lifecycle_rules = [
         {

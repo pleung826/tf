@@ -46,52 +46,52 @@ resource "aws_ec2_transit_gateway_route_table_association" "rt_assoc" {
   for_each = local.is_aws ? {
     for rt_key, rt in var.route_tables :
       for assoc in rt.associations :
-"${rt_key}-${assoc}" => {
-rt_key = rt_key
-assoc  = assoc
-}
-} : {}
+        "${rt_key}-${assoc}" => {
+        rt_key = rt_key
+        assoc  = assoc
+        }
+      } : {}
 
-transit_gateway_attachment_id = aws_ec2_transit_gateway_vpc_attachment.attachments[each.value.assoc].id
-transit_gateway_route_table_id = aws_ec2_transit_gateway_route_table.rt[each.value.rt_key].id
+      transit_gateway_attachment_id = aws_ec2_transit_gateway_vpc_attachment.attachments[each.value.assoc].id
+      transit_gateway_route_table_id = aws_ec2_transit_gateway_route_table.rt[each.value.rt_key].id
 }
 
 resource "aws_ec2_transit_gateway_route_table_propagation" "rt_propagate" {
-for_each = local.is_aws ? {
-for rt_key, rt in var.route_tables :
-for prop in rt.propagations :
-"${rt_key}-${prop}" => {
-rt_key = rt_key
-prop   = prop
-}
-} : {}
+  for_each = local.is_aws ? {
+    for rt_key, rt in var.route_tables :
+      for prop in rt.propagations :
+        "${rt_key}-${prop}" => {
+        rt_key = rt_key
+        prop   = prop
+      }
+    } : {}
 
-transit_gateway_attachment_id = aws_ec2_transit_gateway_vpc_attachment.attachments[each.value.prop].id
-transit_gateway_route_table_id = aws_ec2_transit_gateway_route_table.rt[each.value.rt_key].id
+    transit_gateway_attachment_id = aws_ec2_transit_gateway_vpc_attachment.attachments[each.value.prop].id
+    transit_gateway_route_table_id = aws_ec2_transit_gateway_route_table.rt[each.value.rt_key].id
 }
 
 resource "aws_ec2_transit_gateway_route" "static_routes" {
-for_each = local.is_aws ? {
-for rt_key, rt in var.route_tables :
-for route_key, route in rt.routes :
-"${rt_key}-${route_key}" => {
-rt_key = rt_key
-route  = route
-}
-} : {}
+  for_each = local.is_aws ? {
+    for rt_key, rt in var.route_tables :
+      for route_key, route in rt.routes :
+        "${rt_key}-${route_key}" => {
+        rt_key = rt_key
+        route  = route
+      }
+    } : {}
 
-destination_cidr_block         = each.value.route.destination_cidr_block
-transit_gateway_route_table_id = aws_ec2_transit_gateway_route_table.rt[each.value.rt_key].id
-transit_gateway_attachment_id  = aws_ec2_transit_gateway_vpc_attachment.attachments[each.value.route.target_attachment].id
+  destination_cidr_block         = each.value.route.destination_cidr_block
+  transit_gateway_route_table_id = aws_ec2_transit_gateway_route_table.rt[each.value.rt_key].id
+  transit_gateway_attachment_id  = aws_ec2_transit_gateway_vpc_attachment.attachments[each.value.route.target_attachment].id
 }
 
 # Azure Virtual WAN
 resource "azurerm_virtual_wan" "vwan" {
-count               = local.is_azure ? 1 : 0
-name                = var.name
-location            = var.region
-resource_group_name = var.resource_group
-tags                = var.tags
+  count               = local.is_azure ? 1 : 0
+  name                = var.name
+  location            = var.region
+  resource_group_name = var.resource_group
+  tags                = var.tags
 }
 
 resource "azurerm_virtual_hub" "hubs" {
@@ -114,12 +114,12 @@ resource "azurerm_virtual_hub_route_table" "rt" {
   labels              = ["Default"]
 
   routes = [
-  for r_key, r in each.value.routes : {
-    name            = "route-${r_key}"
-    address_prefix  = r.destination_cidr_block
-    next_hop_type   = "IPAddress"
-    next_hop        = r.target_attachment
-  }
+    for r_key, r in each.value.routes : {
+      name            = "route-${r_key}"
+      address_prefix  = r.destination_cidr_block
+      next_hop_type   = "IPAddress"
+      next_hop        = r.target_attachment
+    }
   ]
 
   tags = each.value.tags
