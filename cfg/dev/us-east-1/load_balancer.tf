@@ -6,8 +6,8 @@ locals {
       name            = "dev-web-alb"
       region          = var.region
       internal        = false
-      vpc_id          = var.vpc_id
-      subnet_ids      = var.public_subnets
+      vpc_id          = var.vpc.id
+      subnet_ids      = var.vpc.subnets.public.cidrs
       security_groups = [var.security_group_web.id]
 
       listeners = [
@@ -46,8 +46,8 @@ locals {
       name        = "dev-internal-nlb"
       region      = var.region
       internal    = true
-      vpc_id      = var.vpc_id
-      subnet_ids  = var.private_subnets
+      vpc_id      = var.vpc.id
+      subnet_ids  = var.vpc.subnets.private.cidrs
       listeners   = []
       target_groups = {}
     }
@@ -60,7 +60,7 @@ locals {
       internal        = false
       resource_group  = var.azure_resource_group
       public_ip_id    = var.azure_public_ip_id
-      subnet_ids      = [var.azure_subnet_id]
+      subnet_ids      = var.vpc.subnets.public.cidrs
       listeners       = []
       target_groups   = {}
     }
@@ -72,7 +72,7 @@ locals {
       region        = var.region
       internal      = false
       ip_address    = var.gcp_reserved_ip
-      subnet_ids    = [var.gcp_subnet_id]
+      subnet_ids    = var.vpc.subnets.public.cidrs
       listeners     = []
       target_groups = {}
     }
