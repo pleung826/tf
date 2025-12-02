@@ -85,4 +85,13 @@ resource "google_compute_firewall" "this" {
   dynamic "deny" {
     for_each = var.egress
     content {
-     
+      protocol = deny.value.protocol
+      ports    = deny.value.ports
+    }
+  }
+
+  source_ranges      = flatten([for rule in var.ingress : lookup(rule, "cidr_blocks", [])])
+  destination_ranges = flatten([for rule in var.egress : lookup(rule, "cidr_blocks", [])])
+
+  target_tags = var.target_tags
+}
