@@ -8,6 +8,9 @@ module "security_group" {
   cloud           = each.value.cloud
   name            = each.value.name
   description     = each.value.description
+  ingress         = each.value.ingress
+  egress          = each.value.egress
+  tags            = each.value.tags
 
   # AWS
   vpc_id = each.value.vpc_id
@@ -17,9 +20,6 @@ module "security_group" {
 
   # GCP
   network = each.value.network
-  ingress = each.value.ingress
-  egress = each.value.egress
-  tags = each.value.tags
 
   providers = {
     aws   = aws.dev
