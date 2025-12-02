@@ -1,37 +1,55 @@
 variable "cloud" {
-  type = string
+  type        = string
+  description = "Cloud provider: aws, azure, or gcp"
 }
 
+variable "name" {
+  type        = string
+  description = "Name of the SG/NSG/Firewall"
+}
+
+variable "description" {
+  type        = string
+  default     = null
+}
+
+# AWS
 variable "vpc_id" {
   type    = string
   default = null
 }
 
+# Azure
+variable "region" {
+  type    = string
+  default = null
+}
 variable "resource_group" {
   type    = string
   default = null
 }
 
-variable "location" {
+# GCP
+variable "network" {
   type    = string
   default = null
 }
+variable "target_tags" {
+  type    = list(string)
+  default = []
+}
 
-variable "groups" {
-  type = map(object({
-    description = string
-    ingress = list(object({
-      from_port   = number
-      to_port     = number
-      protocol    = string
-      cidr_blocks = list(string)
-    }))
-    egress = list(object({
-      from_port   = number
-      to_port     = number
-      protocol    = string
-      cidr_blocks = list(string)
-    }))
-    tags = map(string)
-  }))
+# Rules
+variable "ingress" {
+  type    = list(any)
+  default = []
+}
+variable "egress" {
+  type    = list(any)
+  default = []
+}
+
+variable "tags" {
+  type    = map(string)
+  default = {}
 }

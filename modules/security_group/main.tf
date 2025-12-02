@@ -1,106 +1,88 @@
-locals {
-  is_aws   = var.cloud == "aws"
-  is_azure = var.cloud == "azure"
-}
-
-# AWS Security Groups
-resource "aws_security_group" "sg" {
-  for_each = local.is_aws ? var.groups : {}
-
-  name        = each.key
-  description = each.value.description
+########################################
+# AWS Security Group
+########################################
+resource "aws_security_group" "this" {
+  count       = var.cloud == "aws" ? 1 : 0
+  name        = var.name
+  description = var.description
   vpc_id      = var.vpc_id
-  tags        = each.value.tags
-}
 
-resource "aws_security_group_rule" "ingress" {
-  for_each = local.is_aws ? {
-    for sg_name, sg in var.groups :
-    "${sg_name}-ingress" => {
-      sg_name = sg_name
-      rules   = sg.ingress
+  dynamic "ingress" {
+    for_each = var.ingress
+    content {
+      description     = lookup(ingress.value, "description", null)
+      from_port       = ingress.value.from_port
+      to_port         = ingress.value.to_port
+      protocol        = ingress.value.protocol
+      cidr_blocks     = lookup(ingress.value, "cidr_blocks", [])
+      ipv6_cidr_blocks = lookup(ingress.value, "ipv6_cidr_blocks", [])
+      security_groups  = lookup(ingress.value, "security_groups", [])
+      self             = lookup(ingress.value, "self", null)
     }
-  } : {}
+  }
 
-  count       = length(each.value.rules)
-  type        = "ingress"
-  from_port   = each.value.rules[count.index].from_port
-  to_port     = each.value.rules[count.index].to_port
-  protocol    = each.value.rules[count.index].protocol
-  cidr_blocks = each.value.rules[count.index].cidr_blocks
-  security_group_id = aws_security_group.sg[each.value.sg_name].id
-}
-
-resource "aws_security_group_rule" "egress" {
-  for_each = local.is_aws ? {
-    for sg_name, sg in var.groups :
-    "${sg_name}-egress" => {
-      sg_name = sg_name
-      rules   = sg.egress
+  dynamic "egress" {
+    for_each = var.egress
+    content {
+      description     = lookup(egress.value, "description", null)
+      from_port       = egress.value.from_port
+      to_port         = egress.value.to_port
+      protocol        = egress.value.protocol
+      cidr_blocks     = lookup(egress.value, "cidr_blocks", [])
+      ipv6_cidr_blocks = lookup(egress.value, "ipv6_cidr_blocks", [])
+      security_groups  = lookup(egress.value, "security_groups", [])
+      self             = lookup(egress.value, "self", null)
     }
-  } : {}
+  }
 
-  count       = length(each.value.rules)
-  type        = "egress"
-  from_port   = each.value.rules[count.index].from_port
-  to_port     = each.value.rules[count.index].to_port
-  protocol    = each.value.rules[count.index].protocol
-  cidr_blocks = each.value.rules[count.index].cidr_blocks
-  security_group_id = aws_security_group.sg[each.value.sg_name].id
+  tags = var.tags
 }
 
-# Azure NSGs
-resource "azurerm_network_security_group" "nsg" {
-  for_each = local.is_azure ? var.groups : {}
-
-  name                = each.key
-  location            = var.location
+########################################
+# Azure Network Security Group
+########################################
+resource "azurerm_network_security_group" "this" {
+  count               = var.cloud == "azure" ? 1 : 0
+  name                = var.name
+  location            = var.region
   resource_group_name = var.resource_group
-  tags                = each.value.tags
-}
 
-resource "azurerm_network_security_rule" "ingress" {
-  for_each = local.is_azure ? {
-    for sg_name, sg in var.groups :
-    "${sg_name}-ingress" => {
-      sg_name = sg_name
-      rules   = sg.ingress
+  dynamic "security_rule" {
+    for_each = concat(var.ingress, var.egress)
+    content {
+      name                       = security_rule.value.name
+      description                = lookup(security_rule.value, "description", null)
+      priority                   = security_rule.value.priority
+      direction                  = security_rule.value.direction
+      access                     = security_rule.value.access
+      protocol                   = security_rule.value.protocol
+      source_port_range          = security_rule.value.source_port_range
+      destination_port_range     = security_rule.value.destination_port_range
+      source_address_prefix      = security_rule.value.source_address_prefix
+      destination_address_prefix = security_rule.value.destination_address_prefix
     }
-  } : {}
+  }
 
-  count       = length(each.value.rules)
-  name        = "${each.value.sg_name}-ingress-${count.index}"
-  priority    = 100 + count.index
-  direction   = "Inbound"
-  access      = "Allow"
-  protocol    = each.value.rules[count.index].protocol
-  source_port_range      = "*"
-  destination_port_range = "${each.value.rules[count.index].from_port}-${each.value.rules[count.index].to_port}"
-  source_address_prefixes = each.value.rules[count.index].cidr_blocks
-  destination_address_prefix = "*"
-  network_security_group_name = azurerm_network_security_group.nsg[each.value.sg_name].name
-  resource_group_name         = var.resource_group
+  tags = var.tags
 }
 
-resource "azurerm_network_security_rule" "egress" {
-  for_each = local.is_azure ? {
-    for sg_name, sg in var.groups :
-    "${sg_name}-egress" => {
-      sg_name = sg_name
-      rules   = sg.egress
+########################################
+# GCP Firewall Rule
+########################################
+resource "google_compute_firewall" "this" {
+  count   = var.cloud == "gcp" ? 1 : 0
+  name    = var.name
+  network = var.network
+
+  dynamic "allow" {
+    for_each = var.ingress
+    content {
+      protocol = allow.value.protocol
+      ports    = allow.value.ports
     }
-  } : {}
+  }
 
-  count       = length(each.value.rules)
-  name        = "${each.value.sg_name}-egress-${count.index}"
-  priority    = 200 + count.index
-  direction   = "Outbound"
-  access      = "Allow"
-  protocol    = each.value.rules[count.index].protocol
-  source_port_range      = "*"
-  destination_port_range = "${each.value.rules[count.index].from_port}-${each.value.rules[count.index].to_port}"
-  source_address_prefixes = each.value.rules[count.index].cidr_blocks
-  destination_address_prefix = "*"
-  network_security_group_name = azurerm_network_security_group.nsg[each.value.sg_name].name
-  resource_group_name         = var.resource_group
-}
+  dynamic "deny" {
+    for_each = var.egress
+    content {
+     
