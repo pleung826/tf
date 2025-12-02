@@ -1,6 +1,6 @@
 locals {
   security_groups = {
-    core = {
+    app = {
       cloud = "aws"
       vpc_id = "vpc-0123456789abcdef0"
       description = "Allow HTTP/HTTPS from anywhere"

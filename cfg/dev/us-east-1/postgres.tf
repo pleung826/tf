@@ -4,8 +4,8 @@ locals {
       provider        = "aws"
       name            = "dev-postgres-aws"
       region          = var.region
-      vpc_id          = var.vpc_id
-      subnet_ids      = var.private_subnets
+      vpc_id          = local.vpcs.app.id
+      subnet_ids      = local.vpcs.app.subnets.private.cidrs
 
       db_config = {
         username            = "admin"
