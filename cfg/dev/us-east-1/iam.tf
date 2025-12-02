@@ -14,7 +14,7 @@ locals {
         "../../policy/kms..json",
         "../../policy/s3.json"
       ]
-      custom_trust = "../../policies/aws/trust/eks-admin-trust.json"
+      custom_trust = "../../policy/aws/trust/eks-admin-trust.json"
     }
 
     lambda-exec = {
