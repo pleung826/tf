@@ -1,8 +1,7 @@
 module "postgres" {
-  for_each = local.postgres_instances
-
   source = "../../modules/postgres"
 
+  for_each = var.postgres_instances
   provider        = each.value.provider
   name            = each.value.name
   region          = each.value.region
