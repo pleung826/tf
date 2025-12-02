@@ -5,7 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="92f69055-48fc-4557-bc84-3af9f5a698f5" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/stacks/security_group/main.tf" beforeDir="false" afterPath="$PROJECT_DIR$/stacks/security_group/main.tf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cfg/dev/us-east-1/security_groups.tf" beforeDir="false" afterPath="$PROJECT_DIR$/cfg/dev/us-east-1/security_groups.tf" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
