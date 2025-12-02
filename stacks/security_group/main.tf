@@ -1,13 +1,14 @@
 module "security_group" {
   source = "../../modules/security_group"
 
+  for_each = var.security_groups
   environment     = "dev"
-  region          = var.region
-  project         = var.project
-  group_name      = var.group_name
-  group_rules     = var.group_rules
-  vpc_id          = var.vpc_id
-  attach_to_roles = var.attach_to_roles # optional IAM integration
+  region          = each.value.region
+  project         = each.value.project
+  group_name      = each.value.group_name
+  group_rules     = each.value.group_rules
+  vpc_id          = each.value.vpc_id
+  attach_to_roles = each.value.attach_to_roles # optional IAM integration
 
   providers = {
     aws   = aws.dev
